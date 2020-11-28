@@ -1,4 +1,9 @@
 import pygtrie as trie
+from collections import namedtuple
+
+CardWord = namedtuple('CardWord' , 'score count cards')
+ScoredPlay = namedtuple('ScoredPlay', 'play_score complete combo')
+PlayAction = namedtuple('PlayAction', 'play pick_up drop')
 
 card_points = {'a':2,'b':8,'c':8,'d':5,'e':2,'f':6,'g':6,'h':7,'i':2,'j':13,'k':8,
                 'l':3,'m':5,'n':5,'o':2,'p':6,'q':15,'r':5,'s':3,'t':3,'u':4,'v':11,
@@ -42,83 +47,122 @@ def make_perm(word, card_list, pos, collector):
         collector['/'.join(card_list)] = sum([card_points[c] for c in card_list])
 
 # Construct the Prefix Tree for all possible word/card permutations
-with open("sowpods.txt", "r") as text_file:
+with open("game/sowpods.txt", "r") as text_file:
     lines = text_file.readlines()
 perms = trie.StringTrie(separator='/')
 for w in lines[6:]:
     make_perm(w.strip(),[],0,perms)
 print(f'Using {len(perms)} possible word permutations\n')
 
-def find_word(wt, p, hand_left, collector):
+
+def find_word(word_trie, card_list, hand_left, collector):
+    '''
+    Find all possible words using any number and any combination of the cards
+    This is a recursive function.
+        word_trie is the prefix tree of all words to search over
+        card_list holds the cards as they're identified for this search
+        hand_left holds the cards remaining as each combination is tried
+        collector is a dict where the results are stored
+    '''
     for idx, _ in enumerate(hand_left):
-        h=hand_left.copy()
-        tp = p+[h.pop(idx)]
-        s = '/'.join(tp)
-        if wt.has_subtrie(s):
-            score = wt.get(s)
+        h = hand_left.copy()
+        cards = card_list+[h.pop(idx)]
+        s = '/'.join(cards)
+        # if there's a prefix with these cards then carry on searching with them
+        # i.e. h/e exists as a prefix but h/x doesn't so h/x would be a dead-end
+        if word_trie.has_subtrie(s):
+            score = word_trie.get(s)
+            # if this word is complete in the trie then it has a score, so collect
             if score:
-                collector[s] = (score, len(tp), tp)
-            find_word(wt,tp,h,collector)
+                collector[s] = CardWord(score, len(cards), cards)
+            find_word(word_trie,cards,h,collector)
+
 
 def scored_play(combo, hand_left):
-    ts, tc = 0, 0
-    for e in combo:
-        ts += e[1][0]
-        tc += e[1][1]
+    '''
+    Score this play. Add up the total score from the word combos and subtract any score from the
+    cards left in the hand. Mark as complete if all the cards have been used (empty hand).
+    '''
+    total_score = 0
+    for word in combo:
+        total_score += word[1].score
     if len(hand_left) == 0:
-        return (ts, True, combo)
+        return ScoredPlay(total_score, True, combo)
     else:
-        return (ts-sum([card_points[c] for c in hand_left]), False, combo)   
+        return ScoredPlay(total_score-sum([card_points[c] for c in hand_left]), False, combo)   
 
-def find_word_combos(wt, combo, hand_left, collector):
-    pw = {}
-    find_word(wt,[],hand_left,pw)
-    for w in pw.items():
-        j = hand_left.copy()
-        for c in w[1][2]:
-            j.remove(c)
+
+def find_word_combos(word_trie, combo, hand_left, collector):
+    '''
+    Find all possible word combinations that can be made with the given hand
+    This is a recursive function.
+        word_trie is the prefix tree of all words to search over
+        combo holds the combos as they're identified for this search
+        hand_left holds the cards remaining as each combination is tried
+        collector is a list where the results are stored
+    '''
+    # Find all possible words from the cards left in the hand
+    possible_words = {}
+    find_word(word_trie,[],hand_left,possible_words)
+    # For each word, remove those cards from the remaining cards (hand_left) and then recurse 
+    for word in possible_words.items():
+        hc = hand_left.copy()
+        for card in word[1].cards:
+            hc.remove(card)
         cc = combo.copy()
-        cc.append(w)
-        find_word_combos(wt,cc,j,collector)
+        cc.append(word)
+        find_word_combos(word_trie,cc,hc,collector)
     collector.append(scored_play(combo,hand_left))
 
 def get_play(hand):
+    '''
+    Get the best play for the given hand of cards
+    '''
+    # Get a Prefix Tree of all words that can be made with the given hand
     possible_words = {}
     find_word(perms,[],hand,possible_words)
     pwt = trie.StringTrie(separator='/')
-    pwt.update({x[0]: x[1][0] for x in possible_words.items()})
+    pwt.update({x[0]: x[1].score for x in possible_words.items()})
     combos = []
     for w in possible_words.items():
-        j = hand.copy()
-        for c in w[1][2]:
-            j.remove(c)
-        find_word_combos(pwt,[w],j,combos)
+        hc = hand.copy()
+        for card in w[1].cards:
+            hc.remove(card)
+        find_word_combos(pwt,[w],hc,combos)
     return sorted(combos, reverse=True)[0] if len(combos) > 0 else None
 
-def get_best_play(hand, pick_up):
+def get_best_play(hand, deck_card):
+    '''
+    Given a hand and a deck card, return the best available play. There may not be
+    a valid play, or there may not be a play that uses all the available cards.
+    '''
     print(f'Hand: {"/".join(hand)}')
-    print(f'Deck: {pick_up}')
-    no_pick_up = get_play(hand)
+    print(f'Deck: {deck_card}')
+    # Build up a list of all possible play options from the hand and deck card
     options = []
     # Tuple is: (Hand, Card picked up, Card dropped)
     # First option is to not pick up hence the card picked up and dropped are the same
+    no_pick_up = get_play(hand)
     if no_pick_up: 
-        options.append((no_pick_up, pick_up, pick_up))
+        options.append(PlayAction(no_pick_up, deck_card, deck_card))
+    # Work through all cards in the hand substituting each in turn for the deck card
     for idx, _ in enumerate(hand):
         hc = hand.copy()
-        hc[idx] = pick_up
-        p = get_play(hc)
-        if p:
-            options.append((p, pick_up, hand[idx]))
+        hc[idx] = deck_card
+        play = get_play(hc)
+        if play:
+            options.append(PlayAction(play, deck_card, hand[idx]))
     if options:
-        play = sorted(options, reverse=True)[0]
-        if play[0]:
-            print(f'Score: {play[0][0]}')
-            print(f'Complete: {play[0][1]}')
-            print(f'Words: {[s[0] for s in play[0][2]]}')
-        print(f'Pick up: {play[1]}')
-        print(f'Drop: {play[2]}\n')
+        best_play = sorted(options, reverse=True)[0]
+        print(f'Score: {best_play.play.play_score}')
+        print(f'Complete: {best_play.play.complete}')
+        print(f'Words: {[c[0] for c in best_play.play.combo]}')
+        print(f'Pick up: {best_play.pick_up}')
+        print(f'Drop: {best_play.drop}\n')
+    else:
+        print('No possible play for these cards')
 
 
 get_best_play(['qu','e','b','n','z'],'s')
 get_best_play(['i','c','e','v','i','s','i','o','n'],'i')
+get_best_play(['x','x'],'x')

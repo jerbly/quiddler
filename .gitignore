@@ -1,3 +1,4 @@
 azureml/config.json
 game/sowpods.txt
-azureml/.ipynb_checkpoints
+.ipynb_checkpoints
+.vscode
