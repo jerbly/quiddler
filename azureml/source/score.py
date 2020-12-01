@@ -1,12 +1,8 @@
-# from azureml.contrib.services.aml_request import AMLRequest, rawhttp
-# from azureml.contrib.services.aml_response import AMLResponse
 from icevision.all import *
 import os
 import json
 import base64
 from quiddler_game import Quiddler
-# from inference_schema.schema_decorators import input_schema, output_schema
-# from inference_schema.parameter_types.standard_py_parameter_type import StandardPythonParameterType
 
 class_map = ClassMap(['a','b','c','d','e','f','g','h','i','j','k',
                 'l','m','n','o','p','q','r','s','t','u','v',
@@ -40,14 +36,28 @@ def init():
     model_path = os.path.join(os.getenv('AZUREML_MODEL_DIR'), 'quiddler.pt')
     model.load_state_dict(torch.load(model_path, map_location=torch.device("cpu")))
 
+def b64_to_np(d):
+    return np.frombuffer(base64.b64decode(d), np.uint8)
+
+def raw_to_img(n):
+    return cv2.cvtColor(cv2.imdecode(n, -1), cv2.COLOR_BGR2RGB)
+
+def vec_to_img(r):
+    return np.reshape(r, (480,640,3))
+
 def run(data):
     try:
         data = json.loads(data)
         n_cards = data['n_cards']
-        img = cv2.cvtColor(cv2.imdecode(np.frombuffer(base64.b64decode(data['hand']), np.uint8), -1), cv2.COLOR_BGR2RGB)
-        hand = predict_cards(img, n_cards)
-        img = cv2.cvtColor(cv2.imdecode(np.frombuffer(base64.b64decode(data['deck']), np.uint8), -1), cv2.COLOR_BGR2RGB)
-        deck = predict_cards(img, 1)
+        hand_vector = b64_to_np(data['hand'])
+        deck_vector = b64_to_np(data['deck'])
+
+        if data.get('images',False):
+            hand = predict_cards(raw_to_img(hand_vector), n_cards)
+            deck = predict_cards(raw_to_img(deck_vector), 1)
+        else:
+            hand = predict_cards(vec_to_img(hand_vector), n_cards)
+            deck = predict_cards(vec_to_img(deck_vector), 1)
         return hand[0], deck[0], quiddler.get_best_play(hand[0].split('/'),deck[0])
 
     except Exception as e:
