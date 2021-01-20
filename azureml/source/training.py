@@ -2,7 +2,7 @@ import os
 from icevision.all import *
 from azureml.core.run import Run
 import argparse
-from utils import ViaParser, AzureRunLogCallback
+from utils import AzureRunLogCallback
 import pandas as pd
 import numpy as np
 
@@ -11,6 +11,7 @@ run = Run.get_context()
 
 # Set hyperparameters
 parser = argparse.ArgumentParser()
+parser.add_argument('--input_data', type=str, dest="input_data")
 parser.add_argument('--epochs', type=int, dest='epochs', default=30, help='epochs')
 parser.add_argument('--batch_size', type=int, dest='batch_size', default=6, help='batch_size')
 parser.add_argument('--image_size', type=int, dest='image_size', default=512, help='image_size')
@@ -18,10 +19,9 @@ args = parser.parse_args()
 run.log('epochs', args.epochs)
 run.log('batch_size', args.batch_size)
 run.log('image_size', args.image_size)
+run.log('input_data', args.input_data)
 
-# load the dataset
-print("Loading Data...")
-data_dir = run.input_datasets['quiddler_ds']
+data_dir = args.input_data
 print(f'Data dir = {data_dir}')
 
 class_map = ClassMap(['a','b','c','d','e','f','g','h','i','j','k',
@@ -29,14 +29,9 @@ class_map = ClassMap(['a','b','c','d','e','f','g','h','i','j','k',
                 'w','x','y','z','qu','in','er','cl','th'])
 
 source = Path(data_dir)/'train'
-js = json.load(source/'via.json')
     
-parser = ViaParser(js, source, class_map)
+parser = parsers.via(source/'via.json', source, class_map)
 train_rs, valid_rs = parser.parse(RandomSplitter([0.8, 0.2], seed=42))
-
-# f,p = plt.subplots(1,1)
-# show_record(valid_rs[3], ax=p)
-# run.log_image('Validation sample', plot=f)
 
 size = args.image_size
 presize = size+size//2
@@ -75,7 +70,7 @@ def get_cards(pred, n=100):
     scores = np.array([str(int(sc)) for sc in np.floor(raw_scores*100)])[best_scores]
     mean_score = np.mean(raw_scores[best_scores])
     min_score = np.min(raw_scores[best_scores])
-    b_ord = np.array([bb.x for bb in pred['bboxes']])[best_scores].argsort()
+    b_ord = np.array([bb.xyxy[0] for bb in pred['bboxes']])[best_scores].argsort()
     return ','.join(cards[b_ord]), ','.join(scores[b_ord]), mean_score, min_score
 
 def predict_cards(fname, cards):

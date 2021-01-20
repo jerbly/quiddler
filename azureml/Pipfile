@@ -6,10 +6,10 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-icevision = {extras = ["all"],version = "==0.1.4"}
+icevision = {extras = ["all"]}
 notebook = "*"
 azureml-widgets = "*"
-azureml-sdk = "==1.13"
+azureml-sdk = "*"
 
 [requires]
-python_version = "3.6"
+python_version = "3.8"

@@ -3,6 +3,7 @@ import os
 import json
 import base64
 from quiddler_game import Quiddler
+import platform
 
 class_map = ClassMap(['a','b','c','d','e','f','g','h','i','j','k',
                 'l','m','n','o','p','q','r','s','t','u','v',
@@ -22,7 +23,7 @@ def get_cards(pred, n=100):
     scores = np.array([str(int(sc)) for sc in np.floor(raw_scores*100)])[best_scores]
     mean_score = np.mean(raw_scores[best_scores])
     min_score = np.min(raw_scores[best_scores])
-    b_ord = np.array([bb.x for bb in pred['bboxes']])[best_scores].argsort()
+    b_ord = np.array([bb.xyxy[0] for bb in pred['bboxes']])[best_scores].argsort()
     return '/'.join(cards[b_ord]), ','.join(scores[b_ord]), mean_score, min_score
 
 def predict_cards(img, n_cards):
@@ -32,7 +33,7 @@ def predict_cards(img, n_cards):
     return get_cards(preds[0], n_cards)
     
 def init():
-    print("This is init()")
+    print(f"init() called, using python version {platform.python_version()}")
     model_path = os.path.join(os.getenv('AZUREML_MODEL_DIR'), 'quiddler.pt')
     model.load_state_dict(torch.load(model_path, map_location=torch.device("cpu")))
 
