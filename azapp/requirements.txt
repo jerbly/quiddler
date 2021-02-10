@@ -1,0 +1,10 @@
+# DO NOT include azure-functions-worker in this file
+# The Python Worker is managed by Azure Functions platform
+# Manually managing azure-functions-worker may cause unexpected issues
+
+azure-functions
+pygtrie
+-f https://download.pytorch.org/whl/torch_stable.html
+torch==1.7.1+cpu
+torchvision==0.8.2+cpu
+icevision[]
