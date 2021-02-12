@@ -1,5 +1,5 @@
-//const apiBaseUrl = 'http://localhost:7071/api/'
-const apiBaseUrl = 'https://quiddler.azurewebsites.net/api/'
+const apiBaseUrl = 'http://localhost:7071/api/'
+//const apiBaseUrl = 'https://quiddler.azurewebsites.net/api/'
 
 const app = Vue.createApp({
     data() {
@@ -43,7 +43,9 @@ const app = Vue.createApp({
                     this.waiting = false;
                     this.hand = response.data[0];
                     this.deck = response.data[1];
-                    this.submitCards()
+                    if (this.hand && this.deck) {
+                        this.submitCards();
+                    }
                 })
                 .catch((err) => {
                     return new Error(err.message);

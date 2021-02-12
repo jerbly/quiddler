@@ -15,11 +15,13 @@
   <body>
     <div class="container" id="app">
       <h1>Quiddler</h1>
+      <webcam ref="webcam"></webcam>
 
         <div>
             <form @submit.prevent="uploadImages">
                 <label for="hand">Hand image:</label>
                 <input id="hand" type="file" @change="onHandChange" />
+                <button type="button" class="btn btn-secondary" @click="$refs.webcam.takePhoto('handImage')">Take photo</button>
                 <div class="preview">
                     <img :src="handImage" />
                 </div>
@@ -29,6 +31,7 @@
 
                 <label for="deck">Deck image:</label>
                 <input id="deck" type="file" @change="onDeckChange" />
+                <button type="button" class="btn btn-secondary" @click="$refs.webcam.takePhoto('deckImage')">Take photo</button>
                 <div class="preview">
                     <img :src="deckImage" />
                 </div>
@@ -70,6 +73,9 @@
 
     <!-- Import App -->
     <script src="./main.js"></script>
+    
+    <!-- Import Components -->
+    <script src="./components/WebCam.js"></script>
 
     <!-- Mount App -->
     <script>

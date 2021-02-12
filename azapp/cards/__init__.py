@@ -15,6 +15,8 @@ model = None
 
 def get_cards(pred, n=100):
     raw_scores = pred['scores']
+    if len(raw_scores) == 0:
+        return '','',0,0
     best_scores = raw_scores.argsort()[:-(n+1):-1]
     cards = np.array([class_map.get_id(id) for id in pred['labels']])[best_scores]
     scores = np.array([str(int(sc)) for sc in np.floor(raw_scores*100)])[best_scores]
@@ -30,9 +32,9 @@ def predict_cards(img, n_cards):
     return get_cards(preds[0], n_cards)
 
 def b64_to_np(d):
-    JS_DATA_HEAD = 'data:image/jpeg;base64,'
+    JS_DATA_HEAD = 'data:image'
     if d.startswith(JS_DATA_HEAD):
-        d = d[len(JS_DATA_HEAD):]
+        d = d[d.index(',')+1:]
     return np.frombuffer(base64.b64decode(d), np.uint8)
 
 def raw_to_img(n):
