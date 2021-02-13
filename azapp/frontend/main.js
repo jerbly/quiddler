@@ -1,5 +1,6 @@
 const apiBaseUrl = 'http://localhost:7071/api/'
 //const apiBaseUrl = 'https://quiddler.azurewebsites.net/api/'
+const emptyImage = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
 
 const app = Vue.createApp({
     data() {
@@ -12,6 +13,10 @@ const app = Vue.createApp({
             nCards: 4,
             waiting: false
         }
+    },
+    mounted() {
+        this.$refs.handImage.src = emptyImage;
+        this.$refs.deckImage.src = emptyImage;
     },
     methods: {
         onHandChange(e) {
@@ -48,6 +53,7 @@ const app = Vue.createApp({
                     }
                 })
                 .catch((err) => {
+                    this.waiting = false;
                     return new Error(err.message);
                 })
         },

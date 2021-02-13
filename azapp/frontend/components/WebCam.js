@@ -2,7 +2,7 @@ app.component('webcam', {
     template:
 		/*html*/
 		`
-		<video ref="camera" :width="640" :height="480" autoplay></video>
+		<video ref="camera" :width="320" :height="240" autoplay></video>
 		<canvas style="display:none;" ref="canvas" :width="640" :height="480"></canvas>
 		`,
 				

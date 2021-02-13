@@ -12,36 +12,24 @@
     <script src="https://unpkg.com/vue@next"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   </head>
-  <body>
-    <div class="container" id="app">
-      <h1>Quiddler</h1>
-      <webcam ref="webcam"></webcam>
+  <body class="bg-light">
+    <div class="container-sm" id="app">
+        <div class="py-5 text-center">
+            <h1>Quiddler</h1>
+            <webcam ref="webcam"></webcam>
+        </div>
 
-        <div>
-            <form @submit.prevent="uploadImages">
-                <label for="hand">Hand image:</label>
-                <input id="hand" type="file" @change="onHandChange" />
-                <button type="button" class="btn btn-secondary" @click="$refs.webcam.takePhoto('handImage')">Take photo</button>
-                <div class="preview">
-                    <img :src="handImage" />
-                </div>
-                <div>
-                    <input disabled="true" type="text" placeholder="hand" v-model="hand" />
-                </div>
-
-                <label for="deck">Deck image:</label>
-                <input id="deck" type="file" @change="onDeckChange" />
-                <button type="button" class="btn btn-secondary" @click="$refs.webcam.takePhoto('deckImage')">Take photo</button>
-                <div class="preview">
-                    <img :src="deckImage" />
-                </div>
-                <div>
-                    <input disabled="true" type="text" placeholder="deck" v-model="deck" />
-                </div>
-
-                <div>
+        <form @submit.prevent="uploadImages">
+            <div class="row">
+                <div class="col-2"></div>
+                <div class="col-4">
+                    <label for="hand">Hand image:</label>
+                    <input class="form-control form-control-sm" id="hand" type="file" @change="onHandChange" />
+                    <button type="button" class="btn btn-secondary btn-sm" @click="$refs.webcam.takePhoto('handImage')">Take photo</button>
+                    <div><img :src="handImage" ref="handImage" class="border"/></div>
+                    <div><input disabled="true" type="text" placeholder="hand" v-model="hand" style="width:320px"/></div>
                     <label for="nCards">Card count:</label>
-                    <select id="nCards" v-model.number="nCards">
+                    <select class="form-select form-select-sm" id="nCards" v-model.number="nCards">
                         <option>10</option>
                         <option>9</option>
                         <option>8</option>
@@ -52,25 +40,46 @@
                         <option>3</option>
                     </select>
                 </div>
-                
-                <button v-if="waiting" class="btn btn-primary" type="button" disabled>
-                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                    Working...
-                </button>
-                <div v-else="">
-                    <input class="btn btn-primary" type="submit" value="Submit">
+                <div class="col-4">
+                    <label for="deck">Deck image:</label>
+                    <input class="form-control form-control-sm" id="deck" type="file" @change="onDeckChange" />
+                    <button type="button" class="btn btn-secondary btn-sm" @click="$refs.webcam.takePhoto('deckImage')">Take photo</button>
+                    <div><img :src="deckImage" ref="deckImage" class="border"/></div>
+                    <div><input disabled="true" type="text" placeholder="deck" v-model="deck" style="width:320px"/></div>
                 </div>
-            </form>
-        </div>
-        <div>
-            <p>Pick up: {{ play.pick_up }}</p>
-            <p>Drop: {{ play.drop }}</p>
-            <p>Words: {{ play.words }}</p>
-            <p>Score: {{ play.score }}</p>
-            <p>Complete: {{ play.complete }}</p>
+            </div>
+            <div class="row py-3">
+                <div class="col-6 mx-auto">
+                    <button v-if="waiting" class="w-100 btn btn-primary" type="button" disabled>
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        Working...
+                    </button>
+                    <div v-else="">
+                        <input class="w-100 btn btn-primary" type="submit" value="Submit">
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div class="col-6 mx-auto py-3">
+            <div class="row">
+                <div class="col-4 text-end">Pick up:</div>
+                <div class="col-8">{{ play.pick_up }}</div>
+
+                <div class="col-4 text-end">Drop:</div>
+                <div class="col-8">{{ play.drop }}</div>
+
+                <div class="col-4 text-end">Words:</div>
+                <div class="col-8">{{ play.words }}</div>
+
+                <div class="col-4 text-end">Score:</div>
+                <div class="col-8">{{ play.score }}</div>
+
+                <div class="col-4 text-end">Complete:</div>
+                <div class="col-8">{{ play.complete }}</div>
+            </div>
         </div>
     </div>
-
     <!-- Import App -->
     <script src="./main.js"></script>
     
