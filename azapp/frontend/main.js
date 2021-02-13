@@ -1,5 +1,5 @@
-const apiBaseUrl = 'http://localhost:7071/api/'
-//const apiBaseUrl = 'https://quiddler.azurewebsites.net/api/'
+//const apiBaseUrl = 'http://localhost:7071/api/'
+const apiBaseUrl = 'https://quiddler.azurewebsites.net/api/'
 const emptyImage = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
 
 const app = Vue.createApp({
@@ -11,7 +11,8 @@ const app = Vue.createApp({
             handImage: '',
             deckImage: '',
             nCards: 4,
-            waiting: false
+            waiting: false,
+            state: ''
         }
     },
     mounted() {
@@ -37,6 +38,7 @@ const app = Vue.createApp({
             reader.readAsDataURL(fileObject);
         },
         uploadImages() {
+            this.state = 'Reading images...'
             this.waiting = true;
             axios.post(apiBaseUrl+'cards', {
                     n_cards: this.nCards, 
@@ -46,9 +48,12 @@ const app = Vue.createApp({
                 })
                 .then((response) => {
                     this.waiting = false;
+                    //console.log(response.data)
                     this.hand = response.data[0];
                     this.deck = response.data[1];
                     if (this.hand && this.deck) {
+                        this.handImage = response.data[2];
+                        this.deckImage = response.data[3];
                         this.submitCards();
                     }
                 })
@@ -58,15 +63,26 @@ const app = Vue.createApp({
                 })
         },
         submitCards() {
+            this.state = 'Finding the best play...'
             this.waiting = true;
             axios.post(apiBaseUrl+'game', {
                 hand: this.hand,
                 deck: this.deck
             })
             .then((response) => {
-                this.play = response.data;
                 this.waiting = false;
+                if (response.data) {
+                    this.play = response.data;
+                }
             })
+        }
+    },
+    computed: {
+        wordLinks() {
+            if (this.play.words) {
+                return this.play.words;
+            }
+            return '';
         }
     }
 })

@@ -21,8 +21,8 @@
 
         <form @submit.prevent="uploadImages">
             <div class="row">
-                <div class="col-2"></div>
-                <div class="col-4">
+                <div class="col-sm-0 col-lg-2"></div>
+                <div class="col-sm-6 col-lg-4">
                     <label for="hand">Hand image:</label>
                     <input class="form-control form-control-sm" id="hand" type="file" @change="onHandChange" />
                     <button type="button" class="btn btn-secondary btn-sm" @click="$refs.webcam.takePhoto('handImage')">Take photo</button>
@@ -40,7 +40,7 @@
                         <option>3</option>
                     </select>
                 </div>
-                <div class="col-4">
+                <div class="col-sm-6 col-lg-4">
                     <label for="deck">Deck image:</label>
                     <input class="form-control form-control-sm" id="deck" type="file" @change="onDeckChange" />
                     <button type="button" class="btn btn-secondary btn-sm" @click="$refs.webcam.takePhoto('deckImage')">Take photo</button>
@@ -52,10 +52,10 @@
                 <div class="col-6 mx-auto">
                     <button v-if="waiting" class="w-100 btn btn-primary" type="button" disabled>
                         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                        Working...
+                        {{ state }}
                     </button>
                     <div v-else="">
-                        <input class="w-100 btn btn-primary" type="submit" value="Submit">
+                        <input class="w-100 btn btn-primary" type="submit" value="Get the best play">
                     </div>
                 </div>
             </div>
@@ -63,6 +63,9 @@
 
         <div class="col-6 mx-auto py-3">
             <div class="row">
+                <div class="col-4 text-end">Score:</div>
+                <div class="col-8">{{ play.score }} <i v-show="play.score && !play.complete">(incomplete)</i></div>
+
                 <div class="col-4 text-end">Pick up:</div>
                 <div class="col-8">{{ play.pick_up }}</div>
 
@@ -70,13 +73,15 @@
                 <div class="col-8">{{ play.drop }}</div>
 
                 <div class="col-4 text-end">Words:</div>
-                <div class="col-8">{{ play.words }}</div>
-
-                <div class="col-4 text-end">Score:</div>
-                <div class="col-8">{{ play.score }}</div>
-
-                <div class="col-4 text-end">Complete:</div>
-                <div class="col-8">{{ play.complete }}</div>
+                <div class="col-8">
+                    <ul class="list-unstyled">
+                        <li v-for="word in play.words">
+                            <a :href="'https://www.collinsdictionary.com/dictionary/english/' + word.replaceAll('/','')" target=”_blank”>
+                                {{ word.replaceAll('/','') }}
+                            </a> - {{ word }}
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
