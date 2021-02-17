@@ -1,4 +1,11 @@
-img {
+.imgholder {
     width: 320px;
-    height: 240px;
+    height: 320px;
   }
+
+  img {
+    max-height:320px;
+    max-width:320px;
+    height:auto;
+    width:auto;
+}

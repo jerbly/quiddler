@@ -26,7 +26,9 @@
                     <label for="hand">Hand image:</label>
                     <input class="form-control form-control-sm" id="hand" type="file" @change="onHandChange" />
                     <button type="button" class="btn btn-secondary btn-sm" @click="$refs.webcam.takePhoto('handImage')">Take photo</button>
-                    <div><img :src="handImage" ref="handImage" class="border"/></div>
+                    <div class="imgholder d-flex align-items-center">
+                        <img :src="handImage" ref="handImage" class="border"/>
+                    </div>
                     <div><input disabled="true" type="text" placeholder="hand" v-model="hand" style="width:320px"/></div>
                     <label for="nCards">Card count:</label>
                     <select class="form-select form-select-sm" id="nCards" v-model.number="nCards">
@@ -44,7 +46,9 @@
                     <label for="deck">Deck image:</label>
                     <input class="form-control form-control-sm" id="deck" type="file" @change="onDeckChange" />
                     <button type="button" class="btn btn-secondary btn-sm" @click="$refs.webcam.takePhoto('deckImage')">Take photo</button>
-                    <div><img :src="deckImage" ref="deckImage" class="border"/></div>
+                    <div class="imgholder d-flex align-items-center">
+                        <img :src="deckImage" ref="deckImage" class="border"/>
+                    </div>
                     <div><input disabled="true" type="text" placeholder="deck" v-model="deck" style="width:320px"/></div>
                 </div>
             </div>
