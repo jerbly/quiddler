@@ -16,7 +16,7 @@
     <div class="container-sm" id="app">
         <div class="py-5 text-center">
             <h1>Quiddler</h1>
-            <webcam ref="webcam"></webcam>
+            <webcam ref="webcam" @camera-opened="onCameraOpened"></webcam>
         </div>
 
         <form @submit.prevent="uploadImages">
@@ -24,8 +24,10 @@
                 <div class="col-sm-0 col-lg-2"></div>
                 <div class="col-sm-6 col-lg-4">
                     <label for="hand">Hand image:</label>
-                    <input class="form-control form-control-sm" id="hand" type="file" @change="onHandChange" />
-                    <button type="button" class="btn btn-secondary btn-sm" @click="$refs.webcam.takePhoto('handImage')">Take photo</button>
+                    <div class="input-group">
+                        <button v-show="cameraOpen" type="button" class="btn btn-secondary btn-sm" @click="$refs.webcam.takePhoto('handImage')">Take photo</button>
+                        <input class="form-control form-control-sm" id="hand" type="file" @change="onHandChange" />
+                    </div>
                     <div class="imgholder d-flex align-items-center">
                         <img :src="handImage" ref="handImage" class="border"/>
                     </div>
@@ -44,8 +46,10 @@
                 </div>
                 <div class="col-sm-6 col-lg-4">
                     <label for="deck">Deck image:</label>
-                    <input class="form-control form-control-sm" id="deck" type="file" @change="onDeckChange" />
-                    <button type="button" class="btn btn-secondary btn-sm" @click="$refs.webcam.takePhoto('deckImage')">Take photo</button>
+                    <div class="input-group">
+                        <button v-show="cameraOpen" type="button" class="btn btn-secondary btn-sm" @click="$refs.webcam.takePhoto('deckImage')">Take photo</button>
+                        <input class="form-control form-control-sm" id="deck" type="file" @change="onDeckChange" />
+                    </div>    
                     <div class="imgholder d-flex align-items-center">
                         <img :src="deckImage" ref="deckImage" class="border"/>
                     </div>

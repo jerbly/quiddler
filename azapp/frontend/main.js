@@ -12,7 +12,8 @@ const app = Vue.createApp({
             deckImage: '',
             nCards: 4,
             waiting: false,
-            state: ''
+            state: '',
+            cameraOpen: false
         }
     },
     mounted() {
@@ -20,6 +21,9 @@ const app = Vue.createApp({
         this.$refs.deckImage.src = emptyImage;
     },
     methods: {
+        onCameraOpened() {
+            this.cameraOpen = true;
+        },
         onHandChange(e) {
             this.fileChange(e, 'handImage');
         },
@@ -75,14 +79,6 @@ const app = Vue.createApp({
                     this.play = response.data;
                 }
             })
-        }
-    },
-    computed: {
-        wordLinks() {
-            if (this.play.words) {
-                return this.play.words;
-            }
-            return '';
         }
     }
 })

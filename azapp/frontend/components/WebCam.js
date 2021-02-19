@@ -2,14 +2,17 @@ app.component('webcam', {
     template:
 		/*html*/
 		`
-		<video ref="camera" :width="320" :height="240" autoplay></video>
+		<button v-show="!cameraOpen" class="btn btn-success" type="button" @click="createCameraElement()">Open camera</button>
+		<video v-show="cameraOpen" ref="camera" :width="320" :height="240" autoplay></video>
 		<canvas style="display:none;" ref="canvas" :width="640" :height="480"></canvas>
 		`,
 				
-		mounted() {
-			this.createCameraElement();
+		data() {
+			return {
+				cameraOpen: false
+			}
 		},
-
+		emits: ['camera-opened'],
 		methods: {
 			createCameraElement() {
 				const constraints = (window.constraints = {
@@ -20,7 +23,9 @@ app.component('webcam', {
 				navigator.mediaDevices
 					.getUserMedia(constraints)
 					.then(stream => {
-							this.$refs.camera.srcObject = stream;
+						this.$refs.camera.srcObject = stream;
+						this.cameraOpen = true;
+						this.$emit('camera-opened');
 					})
 					.catch(error => {
 							alert(error);
