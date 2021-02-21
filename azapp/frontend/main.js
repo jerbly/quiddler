@@ -1,5 +1,8 @@
 //const apiBaseUrl = 'http://localhost:7071/api/'
+//const imagesBaseUrl = 'http://localhost:8003/assets/images/'
 const apiBaseUrl = 'https://quiddler.azurewebsites.net/api/'
+const imagesBaseUrl = 'https://quiddler.jerbly.net/assets/images/'
+
 const emptyImage = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
 
 const app = Vue.createApp({
@@ -21,6 +24,20 @@ const app = Vue.createApp({
         this.$refs.deckImage.src = emptyImage;
     },
     methods: {
+        getRandomIntInclusive(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min + 1) + min);
+        },
+        randomHand() {
+            const n = this.getRandomIntInclusive(3,10);
+            this.handImage = imagesBaseUrl+'hand/'+n+'.jpg';
+            this.nCards = n;
+        },
+        randomDeck() {
+            const n = this.getRandomIntInclusive(1,4);
+            this.deckImage = imagesBaseUrl+'deck/'+n+'.jpg';
+        },
         onCameraOpened() {
             this.cameraOpen = true;
         },

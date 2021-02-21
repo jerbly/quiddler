@@ -5,6 +5,7 @@ import os
 import json
 import base64
 import io
+from urllib.request import urlopen
 
 class_map = ClassMap(['a','b','c','d','e','f','g','h','i','j','k',
                 'l','m','n','o','p','q','r','s','t','u','v',
@@ -40,11 +41,21 @@ def predict_cards(img, n_cards):
 
     return get_cards(preds[0], n_cards, img_b64)
 
+def img_to_np(img):
+    if img.startswith('http'):
+        return url_to_np(img)
+    else:
+        return b64_to_np(img)
+
 def b64_to_np(d):
     JS_DATA_HEAD = 'data:image'
     if d.startswith(JS_DATA_HEAD):
         d = d[d.index(',')+1:]
     return np.frombuffer(base64.b64decode(d), np.uint8)
+
+def url_to_np(url):
+    d = urlopen(url)
+    return np.asarray(bytearray(d.read()), np.uint8)
 
 def raw_to_img(n):
     return cv2.cvtColor(cv2.imdecode(n, -1), cv2.COLOR_BGR2RGB)
@@ -62,8 +73,8 @@ def main(req: func.HttpRequest, context: func.Context) -> func.HttpResponse:
 
     data = req.get_json()
     n_cards = data['n_cards']
-    hand_vector = b64_to_np(data['hand'])
-    deck_vector = b64_to_np(data['deck'])
+    hand_vector = img_to_np(data['hand'])
+    deck_vector = img_to_np(data['deck'])
 
     if data.get('images',False):
         hand = predict_cards(raw_to_img(hand_vector), n_cards)

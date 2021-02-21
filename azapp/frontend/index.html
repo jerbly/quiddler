@@ -18,14 +18,15 @@
             <h1>Quiddler</h1>
             <webcam ref="webcam" @camera-opened="onCameraOpened"></webcam>
         </div>
-
+        
         <form @submit.prevent="uploadImages">
             <div class="row">
                 <div class="col-sm-0 col-lg-2"></div>
                 <div class="col-sm-6 col-lg-4">
                     <label for="hand">Hand image:</label>
                     <div class="input-group">
-                        <button v-show="cameraOpen" type="button" class="btn btn-secondary btn-sm" @click="$refs.webcam.takePhoto('handImage')">Take photo</button>
+                        <button v-show="cameraOpen" type="button" class="btn btn-success btn-sm" @click="$refs.webcam.takePhoto('handImage')">Webcam</button>
+                        <button type="button" class="btn btn-secondary btn-sm" @click="randomHand">Random</button>
                         <input class="form-control form-control-sm" id="hand" type="file" @change="onHandChange" />
                     </div>
                     <div class="imgholder d-flex align-items-center">
@@ -47,7 +48,8 @@
                 <div class="col-sm-6 col-lg-4">
                     <label for="deck">Deck image:</label>
                     <div class="input-group">
-                        <button v-show="cameraOpen" type="button" class="btn btn-secondary btn-sm" @click="$refs.webcam.takePhoto('deckImage')">Take photo</button>
+                        <button v-show="cameraOpen" type="button" class="btn btn-success btn-sm" @click="$refs.webcam.takePhoto('deckImage')">Webcam</button>
+                        <button type="button" class="btn btn-secondary btn-sm" @click="randomDeck">Random</button>
                         <input class="form-control form-control-sm" id="deck" type="file" @change="onDeckChange" />
                     </div>    
                     <div class="imgholder d-flex align-items-center">
